@@ -17,13 +17,16 @@ class LeadLag:
                  specific_lags=None):
         self.contrasts = None
         # lead format format is also useful for plotting.
-        self.x, self.y, self.t_x, self.t_y, = convert_to_lead_lag_format(arr_1_with_ts, arr_2_with_ts)
+        self.x, self.y, self.t_x, self.t_y, = convert_to_lead_lag_format(
+            arr_1_with_ts, arr_2_with_ts)
         assert len(self.x) == len(self.y)
         if specific_lags is None:
-            self.lag_range = np.arange(-max_absolute_lag, max_absolute_lag + 1, 1)
+            self.lag_range = np.arange(-max_absolute_lag,
+                                       max_absolute_lag + 1, 1)
         else:
             if sorted(specific_lags) != specific_lags:
-                raise Exception('Make sure the lag list passed as argument is sorted.')
+                raise Exception(
+                    'Make sure the lag list passed as argument is sorted.')
             self.lag_range = np.array(specific_lags)
         self.inference_time = None
         self.cc = CrossCorrelationHY(self.x, self.y, self.t_x, self.t_y,
@@ -43,7 +46,9 @@ class LeadLag:
             return None
         if np.std(self.contrasts) == 0.0:
             return None
-        return self.lag_range[np.argmax(self.contrasts)]
+
+        argmax_contrast = np.argmax(self.contrasts)
+        return self.lag_range[argmax_contrast], self.contrasts[argmax_contrast]
 
     @property
     def llr(self):
@@ -63,19 +68,41 @@ class LeadLag:
         self._contrasts_to_df().to_csv(path_or_buf=output_filename)
 
     def _contrasts_to_df(self):
-        df = pd.DataFrame(data=np.transpose([self.lag_range, self.contrasts]), columns=['LagRange', 'Contrast'])
+        df = pd.DataFrame(data=np.transpose(
+            [self.lag_range, self.contrasts]), columns=['LagRange', 'Contrast'])
         df.set_index('LagRange', inplace=True)
         return df
 
-    def plot_results(self):
+    def plot_results(self, title=None, kind='line', x=None, y=None, file_name='figure1', scale_factor=1, scale_label='cs', max_lag=None, llr=None):
         import matplotlib.pyplot as plt
         if self.contrasts is not None:
-            self._contrasts_to_df().plot()
+            # self._contrasts_to_df().plot(kind=kind, x=x, y=y)
+            plt.rcParams["figure.figsize"] = [6, 4]
+            fig, ax = plt.subplots()
+            fig.patch.set_facecolor('white')
+
+            ax.axvline(linestyle='dashed', color='black', linewidth=0.75)
+
+            plt.scatter(self.lag_range * scale_factor, self.contrasts, s=15)      
+
+            if title is not None:
+                plt.title(title)
+            
+            plt.xlabel(f"Lag ({scale_label})")
+            plt.ylabel('Cross-Correlation')
+            # plt.legend([])
+            if max_lag is not None:
+                plt.text(0.95, 0.5, f'Lead-Lag Time ({scale_label}): {"{:.2f}".format(max_lag * scale_factor)}', transform=plt.gcf().transFigure)
+            if llr is not None:
+                plt.text(0.95, 0.45, f'Lead-Lag Ratio: {"{:.2f}".format(llr)}', transform=plt.gcf().transFigure)
+
+            plt.savefig(f"{file_name}.png", bbox_inches='tight')
+            # plt.savefig(f"{file_name}.png")
             plt.show()
 
-    def plot_data(self, legend=None):
+    def plot_data(self, legend=None, date=None):
         import matplotlib.pyplot as plt
-        plt.title('Non-synchronous data with leader / lagger relationship')
+        plt.title(f"Non-synchronous data with leader / lagger relationship — {date}")
         plt.xlabel('Time Axis (grid granularity)')
         plt.scatter(self.t_x, self.x[self.t_x], s=0.5, color='lime')
         plt.scatter(self.t_y, self.y[self.t_y], s=0.5, color='blue')

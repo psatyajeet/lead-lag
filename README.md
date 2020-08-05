@@ -1,12 +1,13 @@
 # Estimation of the lead-lag from non-synchronous data
-*Implementation of the paper https://arxiv.org/pdf/1303.4871.pdf*
 
-*Complexity*: **N O(LOG N)**
+_Implementation of the paper https://arxiv.org/pdf/1303.4871.pdf_
 
-*Limitations*: Only supports up to the second. Everything labeled in milliseconds is not correctly handled (at the moment).
+_Complexity_: **N O(LOG N)**
 
+_Limitations_: Only supports up to the second. Everything labeled in milliseconds is not correctly handled (at the moment).
 
 ## Abstract
+
 We propose a simple continuous time model for modeling the lead-lag effect between two financial
 assets. A two-dimensional process (Xt, Yt) reproduces a lead-lag effect if, for some time shift
 ϑ ∈ R, the process (Xt, Yt+ϑ) is a semi-martingale with respect to a certain filtration. The
@@ -38,6 +39,7 @@ make
 ```
 
 A way to test that the library has been correctly installed.
+
 ```
 python -c "import lead_lag; print('success')"
 ```
@@ -59,6 +61,7 @@ jupyter notebook lead_lag_example_2.ipynb
 ### Non synchronous data (generated from the Brownian Bachelier model)
 
 We simulate a lead-lag Bachelier model without drift with:
+
 - N = 10,000 (grid on which we sample random arriving times for both X and Y).
 - #I = 500
 - #J = 3,000
@@ -72,12 +75,11 @@ We show a realization of the process (Xt, Yt) and its corresponding Constrast vs
   <img src="figures/Figure_1.png" width="500">
 </p>
 
-
 <p align="center">
   <img src="figures/Figure_2.png" width="500">
 </p>
 
-*The contrast is just a positive definitive cross correlation quantity.*
+_The contrast is just a positive definitive cross correlation quantity._
 
 Clearly, the argmax of the constrast is located around the correct value (lead_lag = 200). We also observe some persistence in the constrast (I may have forgotten an extra term in the modified HY estimator). Even though X has a sampling rate 7x lower than Y, the estimator can still pick up the correct value. We can also normalize the contrast to have an unbiased estimation of the cross correlation function rho for different lags. In theory this function should be a Dirac centered around the lead_lag parameter with ρ(lead_lag) = 0.8 and 0 elsewhere.
 
@@ -116,6 +118,7 @@ The contrast is maximized for ϑ = 15 seconds. This promptly means that bitflyer
 - Only supports up to the second. Everything labeled in milliseconds is not correctly handled.
 
 ## References
+
 - [High-Frequency Covariance Estimates With Noisy and Asynchronous Financial Data](https://www.princeton.edu/~yacine/QMLE2D.pdf)
 - [On covariance estimation of non-synchronously observed diffusion](http://www.ms.u-tokyo.ac.jp/~nakahiro/mypapers_for_personal_use/hayyos03.pdf)
 - [Estimation of the lead-lag parameter from non-synchronous data](https://arxiv.org/pdf/1303.4871.pdf)
